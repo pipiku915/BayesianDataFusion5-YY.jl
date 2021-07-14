@@ -266,13 +266,6 @@ function macau(data::RelationData;
     ### updated 3
     train_counts = DataFrame(train_counts_1 = train_count[:,1], train_counts_2 = train_count[:,2])
     result["train_counts"] = train_counts
-    ### updated 2
-    # insertcols!(result, 11, :train_counts_1 =>vec(train_count[:,1]))
-    # insertcols!(result, 12, :train_counts_2 =>vec(train_count[:,2]))
-    ### updated 1
-    # result_0 = Dict{AbstractString,Any}()
-    # result_0 = DataFrame(train_count_1 = train_count[:,1], train_count_2 = train_count[:,2] )
-    # result = hcat(result, result_0)
   end
   if typeof(f) <: Function
     result["f_output"] = f_output

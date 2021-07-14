@@ -1,0 +1,45 @@
+using BayesianDataFusion
+using Distributed
+using SparseArrays
+using Test
+
+X = sprand(50, 100, 0.1)
+Y1 = rand(50, 3)
+Y2 = rand(100, 2)
+
+Z1 = X' * Y1
+Z2 = X  * Y2
+addprocs(2)
+@everywhere using BayesianDataFusion
+
+fp  = psparse(X, workers())
+Z1p = transpose(fp) * Y1
+Z2p = fp * Y2
+
+@test Z1 ≈ Z1p
+@test Z2 ≈ Z2p
+
+W  = sprand(50, 10, 0.1)
+rd = RelationData(W, class_cut = 0.5, feat1 = fp)
+assignToTest!(rd.relations[1], 2)
+
+result = macau(rd, burnin = 2, psamples = 2, num_latent=5, verbose=false)
+
+@test size(rd.entities[1].model.beta) == (size(fp,2), 5)
+
+
+########### parallel sparse with CSR ###########
+fp2 = psparse(SparseMatrixCSC(X'), workers())
+
+Z1r = transpose(fp2) * Y1
+Z2r = fp2 * Y2
+
+@test Z1 ≈ Z1r
+@test Z2 ≈ Z2r
+
+rd2 = RelationData(W, class_cut = 0.5, feat1 = fp2)
+assignToTest!(rd2.relations[1], 2)
+
+result = macau(rd2, burnin = 2, psamples = 2, num_latent=5, verbose=false)
+
+rmprocs( workers() )

@@ -277,5 +277,6 @@ function macau(data::RelationData;
   if typeof(f) <: Function
     result["f_output"] = f_output
   end
-
+  result["latent_multi_threading"] = latent_multi_threading
+  return result
 end
